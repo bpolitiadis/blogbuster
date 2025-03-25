@@ -1,23 +1,20 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/mongodb";
+import connectToDatabase from "@/lib/mongodb";
 import { Debate } from "@/models/Debate";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authMiddleware, getAuthUser } from "@/lib/authMiddleware";
 import { z } from "zod";
+import { NextRequest } from "next/server";
 
 const voteSchema = z.object({
   votedFor: z.string(),
 });
 
-export async function POST(
-  req: Request,
+async function handler(
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { userId } = getAuthUser(req);
 
     const body = await req.json();
     const { votedFor } = voteSchema.parse(body);
@@ -38,7 +35,7 @@ export async function POST(
     }
 
     // Check if user has already voted
-    if (debate.hasVoted(session.user.id)) {
+    if (debate.hasVoted(userId)) {
       return NextResponse.json(
         { error: "You have already voted in this debate" },
         { status: 400 }
@@ -55,7 +52,7 @@ export async function POST(
 
     // Add vote
     debate.votes.push({
-      userId: session.user.id,
+      userId,
       votedFor,
       createdAt: new Date(),
     });
@@ -73,4 +70,8 @@ export async function POST(
       { status: 500 }
     );
   }
+}
+
+export function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  return authMiddleware(req, () => handler(req, { params }));
 }

@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { Post } from "./Post";
-import { User } from "./User";
+import User from "./User";
 
 export interface IDebate extends Document {
   postId: mongoose.Types.ObjectId;
@@ -26,6 +25,18 @@ export interface IDebate extends Document {
   isExpired(): boolean;
   shouldEnd(): boolean;
   endDebate(): Promise<void>;
+}
+
+interface IReply {
+  userId: mongoose.Types.ObjectId;
+  content: string;
+  createdAt: Date;
+}
+
+interface IVote {
+  userId: mongoose.Types.ObjectId;
+  votedFor: mongoose.Types.ObjectId;
+  createdAt: Date;
 }
 
 const debateSchema = new Schema<IDebate>(
@@ -112,19 +123,20 @@ debateSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 debateSchema.methods.hasReplied = function (
   userId: mongoose.Types.ObjectId
 ): boolean {
-  return this.replies.some((reply) => reply.userId.equals(userId));
+  return this.replies.some((reply: IReply) => reply.userId.equals(userId));
 };
 
 debateSchema.methods.hasVoted = function (
   userId: mongoose.Types.ObjectId
 ): boolean {
-  return this.votes.some((vote) => vote.userId.equals(userId));
+  return this.votes.some((vote: IVote) => vote.userId.equals(userId));
 };
 
 debateSchema.methods.getVoteCount = function (
   userId: mongoose.Types.ObjectId
 ): number {
-  return this.votes.filter((vote) => vote.votedFor.equals(userId)).length;
+  return this.votes.filter((vote: IVote) => vote.votedFor.equals(userId))
+    .length;
 };
 
 debateSchema.methods.isExpired = function (): boolean {
