@@ -1,17 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "./ui/Button";
 import { Avatar } from "./ui/Avatar";
 import { useState } from "react";
+import { useAuth } from "@/features/auth/AuthContext";
 
-interface NavbarProps {
-  user?: {
-    username: string;
-    email: string;
-  };
-}
-
-export function Navbar({ user }: NavbarProps) {
+export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
   return (
     <nav className="bg-white shadow">
@@ -41,14 +38,17 @@ export function Navbar({ user }: NavbarProps) {
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
-            {user ? (
+            {isAuthenticated ? (
               <>
                 <Button variant="default" asChild>
                   <Link href="/posts/new">Write Post</Link>
                 </Button>
-                <div className="relative">
-                  <Avatar fallback={user.username} className="cursor-pointer" />
-                </div>
+                <Link href="/profile">
+                  <Avatar
+                    fallback={user?.username}
+                    className="cursor-pointer"
+                  />
+                </Link>
               </>
             ) : (
               <>
@@ -122,15 +122,15 @@ export function Navbar({ user }: NavbarProps) {
             </Link>
           </div>
           <div className="border-t border-gray-200 pb-3 pt-4">
-            {user ? (
+            {isAuthenticated ? (
               <div className="space-y-1 px-4">
                 <div className="flex items-center gap-3">
-                  <Avatar fallback={user.username} size="sm" />
+                  <Avatar fallback={user?.username} size="sm" />
                   <div>
                     <p className="text-base font-medium text-gray-800">
-                      {user.username}
+                      {user?.username}
                     </p>
-                    <p className="text-sm text-gray-500">{user.email}</p>
+                    <p className="text-sm text-gray-500">{user?.email}</p>
                   </div>
                 </div>
                 <Link
@@ -138,6 +138,12 @@ export function Navbar({ user }: NavbarProps) {
                   className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
                 >
                   Write Post
+                </Link>
+                <Link
+                  href="/profile"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                >
+                  Profile
                 </Link>
               </div>
             ) : (

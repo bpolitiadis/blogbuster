@@ -53,6 +53,14 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - `POST /api/auth/refresh`: Token refresh
   - `GET /api/auth/me`: User profile
   - `POST /api/auth/logout`: User logout
+- Frontend Authentication:
+  - Global auth context provider
+  - Auth hooks for component integration
+  - Protected routes with automatic redirection
+  - Pages:
+    - `/login`: User login form
+    - `/register`: User registration form
+    - `/profile`: User dashboard with XP, badges, and settings
 
 ### Post Management
 
@@ -116,7 +124,6 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Next Steps
 
-- Build authentication UI components (login/register forms)
 - Create post creation and editing interface
 - Implement post listing and detail pages
 - Add comment UI components and interactions
