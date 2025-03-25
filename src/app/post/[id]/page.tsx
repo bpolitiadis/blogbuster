@@ -12,13 +12,14 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { useTheme } from "@/hooks/useTheme";
 import { Mood } from "@/lib/themes";
+import { Debate } from "@/components/Debate";
 
 interface Comment {
   id: string;
   content: string;
   author: {
+    id: string;
     username: string;
-    email: string;
   };
   createdAt: string;
   replies?: Comment[];
@@ -38,6 +39,34 @@ interface Post {
   createdAt: string;
 }
 
+interface Debate {
+  id: string;
+  user1: {
+    id: string;
+    username: string;
+  };
+  user2: {
+    id: string;
+    username: string;
+  };
+  replies: {
+    userId: string;
+    content: string;
+    createdAt: string;
+  }[];
+  votes: {
+    userId: string;
+    votedFor: string;
+    createdAt: string;
+  }[];
+  winner?: {
+    id: string;
+    username: string;
+  };
+  status: "active" | "completed";
+  expiresAt: string;
+}
+
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -51,6 +80,8 @@ export default function PostPage() {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const theme = useTheme(post?.mood);
+  const [debates, setDebates] = useState<Debate[]>([]);
+  const [isLoadingDebates, setIsLoadingDebates] = useState(false);
 
   // Fetch post data
   useEffect(() => {
@@ -101,6 +132,105 @@ export default function PostPage() {
       fetchComments();
     }
   }, [id]);
+
+  const fetchDebates = async () => {
+    try {
+      setIsLoadingDebates(true);
+      const response = await fetch(`/api/debates?postId=${id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch debates");
+      }
+      const data = await response.json();
+      setDebates(data);
+    } catch (error) {
+      console.error("Error fetching debates:", error);
+      setError("Failed to load debates");
+    } finally {
+      setIsLoadingDebates(false);
+    }
+  };
+
+  const handleCreateDebate = async (challengedUserId: string) => {
+    try {
+      const response = await fetch("/api/debates", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          postId: id,
+          challengedUserId,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to create debate");
+      }
+
+      const newDebate = await response.json();
+      setDebates((prev) => [newDebate, ...prev]);
+    } catch (error) {
+      console.error("Error creating debate:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to create debate"
+      );
+    }
+  };
+
+  const handleDebateReply = async (debateId: string, content: string) => {
+    try {
+      const response = await fetch(`/api/debates/${debateId}/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to submit reply");
+      }
+
+      const updatedDebate = await response.json();
+      setDebates((prev) =>
+        prev.map((debate) => (debate.id === debateId ? updatedDebate : debate))
+      );
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to submit reply"
+      );
+    }
+  };
+
+  const handleDebateVote = async (debateId: string, votedFor: string) => {
+    try {
+      const response = await fetch(`/api/debates/${debateId}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ votedFor }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to submit vote");
+      }
+
+      const updatedDebate = await response.json();
+      setDebates((prev) =>
+        prev.map((debate) => (debate.id === debateId ? updatedDebate : debate))
+      );
+    } catch (error) {
+      console.error("Error submitting vote:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to submit vote"
+      );
+    }
+  };
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this post?")) {
@@ -320,6 +450,44 @@ export default function PostPage() {
             </div>
           )}
         </section>
+
+        {/* Debates Section */}
+        <div className="mt-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">Debates</h2>
+            {user && user.id !== post.author.id && (
+              <Button
+                onClick={() => handleCreateDebate(post.author.id)}
+                disabled={isLoading}
+              >
+                Challenge Author
+              </Button>
+            )}
+          </div>
+
+          {isLoadingDebates ? (
+            <div className="flex justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            </div>
+          ) : error ? (
+            <div className="rounded-lg bg-red-50 p-4">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          ) : debates.length === 0 ? (
+            <p className="text-gray-500">No debates yet</p>
+          ) : (
+            <div className="space-y-6">
+              {debates.map((debate) => (
+                <Debate
+                  key={debate.id}
+                  debate={debate}
+                  onReply={(content) => handleDebateReply(debate.id, content)}
+                  onVote={(votedFor) => handleDebateVote(debate.id, votedFor)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

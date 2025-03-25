@@ -88,6 +88,13 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - Dynamic color schemes for each mood
   - Theme affects post display, buttons, and UI elements
   - Consistent visual experience across the platform
+- Debate system:
+  - Users can challenge post authors to debates
+  - Each participant gets one reply
+  - Other users can vote on the debate
+  - Debates end after 48 hours or 10 votes
+  - Winner receives 100 XP
+  - Real-time vote counting and status updates
 - API Routes:
   - `POST /api/posts`: Create new post (protected)
   - `GET /api/posts`: List posts with search and filtering
@@ -157,6 +164,15 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - Creation timestamp
   - Compound index for efficient querying
   - XP reward on creation
+- **Debate Model**:
+  - Post and participant references
+  - Structured replies from each participant
+  - Vote tracking with user references
+  - Automatic expiration after 48 hours
+  - Winner determination based on votes
+  - XP reward system for winners
+  - Status tracking (active/completed)
+  - Indexes for efficient querying
 
 ## Getting Started
 
