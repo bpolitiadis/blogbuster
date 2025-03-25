@@ -1,0 +1,65 @@
+2025-03-25 05:23:50 [INFO]: Testing database connection
+2025-03-25 05:23:50 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 05:23:50 [INFO]: Establishing new MongoDB connection to cluster0.8t75q.mongodb.net/blogbuster?retryWrites=true&w=majority&appName=Cluster0
+2025-03-25 05:23:51 [ERROR]: MongoDB connection error: bad auth : authentication failed
+2025-03-25 05:23:51 [ERROR]: MongoDB error code: 8000
+2025-03-25 05:23:51 [ERROR]: Failed to connect to MongoDB
+2025-03-25 05:23:51 [ERROR]: Database connection test failed: bad auth : authentication failed
+2025-03-25 13:12:00 [INFO]: Processing user registration request
+2025-03-25 13:12:00 [DEBUG]: Connecting to database for user registration
+2025-03-25 13:12:00 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:12:00 [INFO]: Establishing new MongoDB connection to cluster0.8t75q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+2025-03-25 13:12:01 [ERROR]: MongoDB connection error: bad auth : authentication failed
+2025-03-25 13:12:01 [ERROR]: MongoDB error code: 8000
+2025-03-25 13:12:01 [ERROR]: Failed to connect to MongoDB
+2025-03-25 13:12:01 [ERROR]: Registration error: Unknown error type - MongoServerError: bad auth : authentication failed
+2025-03-25 13:18:56 [INFO]: Processing user registration request
+2025-03-25 13:18:56 [DEBUG]: Connecting to database for user registration
+2025-03-25 13:18:56 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:18:56 [INFO]: Establishing new MongoDB connection to cluster0.8t75q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+2025-03-25 13:18:56 [INFO]: Successfully connected to MongoDB
+2025-03-25 13:18:56 [DEBUG]: Database connection successful
+2025-03-25 13:18:56 [INFO]: Registration attempt for email: dev@dev.com, username: dev
+2025-03-25 13:18:56 [DEBUG]: Checking if user with email dev@dev.com or username dev already exists
+2025-03-25 13:18:56 [ERROR]: Registration error: Unknown error type - MongoServerError: user is not allowed to do action [find] on [test.users]
+2025-03-25 13:21:45 [INFO]: Processing user registration request
+2025-03-25 13:21:45 [DEBUG]: Connecting to database for user registration
+2025-03-25 13:21:45 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:21:45 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:21:45 [DEBUG]: Database connection successful
+2025-03-25 13:21:45 [INFO]: Registration attempt for email: dev@dev.com, username: dev
+2025-03-25 13:21:45 [DEBUG]: Checking if user with email dev@dev.com or username dev already exists
+2025-03-25 13:21:45 [ERROR]: Registration error: Unknown error type - MongoServerError: user is not allowed to do action [find] on [test.users]
+2025-03-25 13:21:48 [INFO]: Processing user registration request
+2025-03-25 13:21:48 [DEBUG]: Connecting to database for user registration
+2025-03-25 13:21:48 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:21:48 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:21:48 [DEBUG]: Database connection successful
+2025-03-25 13:21:48 [INFO]: Registration attempt for email: dev@dev.com, username: dev
+2025-03-25 13:21:48 [DEBUG]: Checking if user with email dev@dev.com or username dev already exists
+2025-03-25 13:21:48 [DEBUG]: Creating new user record
+2025-03-25 13:21:48 [INFO]: User registered successfully: dev (dev@dev.com)
+2025-03-25 13:21:48 [DEBUG]: Generating authentication tokens
+2025-03-25 13:21:48 [DEBUG]: Setting refresh token cookie
+2025-03-25 13:21:49 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:21:49 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:21:52 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:21:52 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:21:52 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:21:52 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:23:05 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:23:05 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:23:12 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:23:12 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:23:12 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:23:12 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:23:19 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:23:19 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:23:19 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:23:19 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:23:21 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:23:21 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:25:36 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:25:36 [DEBUG]: Using cached MongoDB connection
+2025-03-25 13:25:36 [DEBUG]: Connecting to MongoDB database...
+2025-03-25 13:25:36 [DEBUG]: Using cached MongoDB connection

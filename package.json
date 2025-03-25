@@ -15,11 +15,13 @@
     "class-variance-authority": "^0.7.1",
     "date-fns": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.15.0",
     "mongoose": "^8.13.0",
     "next": "15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.0.2"
+    "tailwind-merge": "^3.0.2",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -55,6 +55,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (): Promise<User | null> => {
     try {
+      // Ensure we have a valid access token
+      if (!accessToken) {
+        await refreshToken();
+      }
+
       const response = await fetch("/api/auth/me", {
         headers: {
           Authorization: `Bearer ${accessToken}`,

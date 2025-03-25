@@ -1,0 +1,10 @@
+2025-03-25 05:23:51 [ERROR]: MongoDB connection error: bad auth : authentication failed
+2025-03-25 05:23:51 [ERROR]: MongoDB error code: 8000
+2025-03-25 05:23:51 [ERROR]: Failed to connect to MongoDB
+2025-03-25 05:23:51 [ERROR]: Database connection test failed: bad auth : authentication failed
+2025-03-25 13:12:01 [ERROR]: MongoDB connection error: bad auth : authentication failed
+2025-03-25 13:12:01 [ERROR]: MongoDB error code: 8000
+2025-03-25 13:12:01 [ERROR]: Failed to connect to MongoDB
+2025-03-25 13:12:01 [ERROR]: Registration error: Unknown error type - MongoServerError: bad auth : authentication failed
+2025-03-25 13:18:56 [ERROR]: Registration error: Unknown error type - MongoServerError: user is not allowed to do action [find] on [test.users]
+2025-03-25 13:21:45 [ERROR]: Registration error: Unknown error type - MongoServerError: user is not allowed to do action [find] on [test.users]

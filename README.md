@@ -9,6 +9,7 @@ A full-stack blog platform where users can register, log in, post articles, and 
 - **Styling**: TailwindCSS
 - **Database**: MongoDB with Mongoose
 - **Authentication**: JWT + Refresh tokens (custom)
+- **Logging**: Winston logger with file and console transports
 - **API Integration**: OpenAI API (for writing assistant) - planned
 - **Deployment**: Vercel + MongoDB Atlas (planned)
 
@@ -19,6 +20,8 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - mongoose (MongoDB ODM)
   - bcryptjs (for password hashing)
   - jsonwebtoken (for JWT authentication)
+  - winston (for logging)
+  - mongodb (MongoDB driver)
 - Set up environment variables with `.env.local`
 - Configured folder structure:
   - `src/lib`: Utility functions
@@ -28,7 +31,16 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - `src/hooks`: Custom React hooks
   - `src/types`: TypeScript type definitions
   - `src/features`: Logical modules
-- Created MongoDB connection utility in `src/lib/mongodb.ts`
+- Created MongoDB connection utility in `src/lib/mongodb.ts` with:
+  - Connection pooling and caching
+  - Comprehensive error handling
+  - Detailed logging of connection states
+  - Automatic reconnection handling
+- Created logging utility in `src/lib/logger.ts` with:
+  - File and console transports
+  - Different log levels (error, warn, info, debug)
+  - Structured logging format
+  - Automatic log rotation
 
 ## Features Implemented
 
@@ -47,6 +59,8 @@ A full-stack blog platform where users can register, log in, post articles, and 
 - Secure JWT-based authentication with refresh tokens
 - HTTP-only cookies for refresh tokens
 - Password hashing with bcrypt
+- Comprehensive logging of authentication events
+- Detailed error tracking and reporting
 - API Routes:
   - `POST /api/auth/register`: User registration
   - `POST /api/auth/login`: User authentication
@@ -119,6 +133,7 @@ First, create a `.env.local` file in the root directory with the following varia
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 JWT_REFRESH_SECRET=your_refresh_token_secret
+LOG_LEVEL=info  # Optional: Set logging level (error, warn, info, debug)
 ```
 
 Then, run the development server:
