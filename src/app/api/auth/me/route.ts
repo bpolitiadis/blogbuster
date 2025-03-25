@@ -24,6 +24,9 @@ async function handler(req: NextRequest) {
     const username = user.username as string;
     const email = user.email as string;
     const createdAt = user.createdAt as Date;
+    const xp = user.xp as number;
+    const level = user.level as number;
+    const badges = user.badges as string[];
 
     // Return user profile
     return NextResponse.json({
@@ -32,6 +35,9 @@ async function handler(req: NextRequest) {
         username,
         email,
         createdAt,
+        xp,
+        level,
+        badges,
       },
     });
   } catch (error) {

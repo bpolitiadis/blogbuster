@@ -82,6 +82,7 @@ A full-stack blog platform where users can register, log in, post articles, and 
 - Text search and tag filtering
 - Pagination support
 - Author-only modifications
+- XP rewards for post creation (50 XP)
 - API Routes:
   - `POST /api/posts`: Create new post (protected)
   - `GET /api/posts`: List posts with search and filtering
@@ -103,9 +104,30 @@ A full-stack blog platform where users can register, log in, post articles, and 
 - Nested comments support (replies to comments)
 - Pagination for top-level comments
 - Author association
+- XP rewards for comment creation (10 XP)
 - API Routes:
   - `POST /api/comments`: Add comment to post (protected)
   - `GET /api/comments/:postId`: Get comments for a post with replies
+
+### User Progression System
+
+- Experience Points (XP) system:
+  - 50 XP for creating a post
+  - 10 XP for creating a comment
+  - 100 XP for winning a debate (planned)
+- Level progression (100 XP per level)
+- Achievement badges:
+  - XP-based badges:
+    - "XP Master" (1000 XP)
+    - "XP Legend" (5000 XP)
+  - Level-based badges:
+    - "Rising Star" (Level 5)
+    - "Veteran" (Level 10)
+- Profile page with:
+  - XP progress bar
+  - Current level display
+  - Badge showcase
+  - Account settings
 
 ### Models
 
@@ -113,17 +135,22 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - Username, email, password fields
   - Password hashing with bcrypt
   - Password comparison method
+  - XP and level tracking
+  - Badge collection
+  - XP management methods
 - **Post Model**:
   - Title, content, tags, mood fields
   - Author reference (ObjectId)
   - Timestamps (createdAt, updatedAt)
   - Text index for search functionality
+  - XP reward on creation
 - **Comment Model**:
   - Content and author fields
   - Post reference (ObjectId)
   - Optional parent comment for nesting
   - Creation timestamp
   - Compound index for efficient querying
+  - XP reward on creation
 
 ## Getting Started
 
@@ -152,6 +179,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - ~~Create post creation and editing interface~~
 - ~~Implement post listing and detail pages~~
 - ~~Add comment UI components and interactions~~
+- ~~Implement XP and badge system~~
 - Add OpenAI integration for writing assistance
 - Add admin functionality
 - Set up deployment configuration

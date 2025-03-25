@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import User from "./User";
 
 export interface IPost extends Document {
   title: string;
@@ -57,6 +58,20 @@ const PostSchema: Schema = new Schema(
 
 // Add text index for search functionality
 PostSchema.index({ title: "text", content: "text", tags: "text" });
+
+// Award XP when a post is created
+PostSchema.post("save", async function (doc) {
+  if (doc.isNew) {
+    try {
+      const user = await User.findById(doc.author);
+      if (user) {
+        await user.addXP(50); // Award 50 XP for creating a post
+      }
+    } catch (error) {
+      console.error("Error awarding XP for post creation:", error);
+    }
+  }
+});
 
 // Create the model or use existing one
 const Post: Model<IPost> =
