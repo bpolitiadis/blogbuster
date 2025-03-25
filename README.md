@@ -57,6 +57,15 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - `PUT /api/posts/:id`: Update post (author only)
   - `DELETE /api/posts/:id`: Delete post (author only)
 
+### Comment System
+
+- Nested comments support (replies to comments)
+- Pagination for top-level comments
+- Author association
+- API Routes:
+  - `POST /api/comments`: Add comment to post (protected)
+  - `GET /api/comments/:postId`: Get comments for a post with replies
+
 ### Models
 
 - **User Model**:
@@ -68,6 +77,12 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - Author reference (ObjectId)
   - Timestamps (createdAt, updatedAt)
   - Text index for search functionality
+- **Comment Model**:
+  - Content and author fields
+  - Post reference (ObjectId)
+  - Optional parent comment for nesting
+  - Creation timestamp
+  - Compound index for efficient querying
 
 ## Getting Started
 
@@ -94,7 +109,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Build authentication UI components (login/register forms)
 - Create post creation and editing interface
 - Implement post listing and detail pages
-- Add comment functionality
+- Add comment UI components and interactions
 - Design and build UI templates
 - Add OpenAI integration for writing assistance
 - Add admin functionality
