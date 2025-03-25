@@ -8,8 +8,8 @@ interface Comment {
   id: string;
   content: string;
   author: {
+    id: string;
     username: string;
-    email: string;
   };
   createdAt: string;
   replies?: Comment[];
@@ -18,10 +18,10 @@ interface Comment {
 interface CommentThreadProps {
   comment: Comment;
   currentUser?: {
+    id: string;
     username: string;
-    email: string;
-  };
-  onReply: (content: string, parentId: string) => Promise<void>;
+  } | null;
+  onReply: (commentId: string, content: string) => Promise<void>;
 }
 
 export function CommentThread({
@@ -38,7 +38,7 @@ export function CommentThread({
 
     setIsSubmitting(true);
     try {
-      await onReply(replyContent, comment.id);
+      await onReply(comment.id, replyContent);
       setReplyContent("");
       setIsReplying(false);
     } catch (error) {

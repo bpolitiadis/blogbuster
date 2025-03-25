@@ -83,6 +83,11 @@ A full-stack blog platform where users can register, log in, post articles, and 
 - Pagination support
 - Author-only modifications
 - XP rewards for post creation (50 XP)
+- Mood-based theming system:
+  - 10 predefined moods (Dark, Romantic, Sci-Fi, Mystery, Adventure, Fantasy, Horror, Comedy, Drama, Thriller)
+  - Dynamic color schemes for each mood
+  - Theme affects post display, buttons, and UI elements
+  - Consistent visual experience across the platform
 - API Routes:
   - `POST /api/posts`: Create new post (protected)
   - `GET /api/posts`: List posts with search and filtering
@@ -144,6 +149,7 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - Timestamps (createdAt, updatedAt)
   - Text index for search functionality
   - XP reward on creation
+  - Mood validation against predefined themes
 - **Comment Model**:
   - Content and author fields
   - Post reference (ObjectId)

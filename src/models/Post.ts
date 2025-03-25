@@ -1,11 +1,12 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import User from "./User";
+import { Mood } from "@/lib/themes";
 
 export interface IPost extends Document {
   title: string;
   content: string;
   tags: string[];
-  mood?: string;
+  mood?: Mood;
   author: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -42,8 +43,22 @@ const PostSchema: Schema = new Schema(
     },
     mood: {
       type: String,
+      enum: {
+        values: [
+          "Dark",
+          "Romantic",
+          "Sci-Fi",
+          "Mystery",
+          "Adventure",
+          "Fantasy",
+          "Horror",
+          "Comedy",
+          "Drama",
+          "Thriller",
+        ],
+        message: "{VALUE} is not a valid mood",
+      },
       trim: true,
-      maxlength: [20, "Mood cannot exceed 20 characters"],
     },
     author: {
       type: Schema.Types.ObjectId,

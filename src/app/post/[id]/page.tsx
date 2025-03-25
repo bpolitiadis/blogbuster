@@ -10,6 +10,8 @@ import { CommentThread } from "@/components/CommentThread";
 import { Textarea } from "@/components/ui/Textarea";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { useTheme } from "@/hooks/useTheme";
+import { Mood } from "@/lib/themes";
 
 interface Comment {
   id: string;
@@ -27,7 +29,7 @@ interface Post {
   title: string;
   content: string;
   tags: string[];
-  mood?: string;
+  mood?: Mood;
   author: {
     id: string;
     username: string;
@@ -40,7 +42,6 @@ export default function PostPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
-
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +50,7 @@ export default function PostPage() {
   const [commentError, setCommentError] = useState<string | null>(null);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const theme = useTheme(post?.mood);
 
   // Fetch post data
   useEffect(() => {
@@ -189,16 +191,16 @@ export default function PostPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-16">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-lg">Loading...</div>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-red-600">
-        {error || "Post not found"}
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-lg text-red-600">{error || "Post not found"}</div>
       </div>
     );
   }
@@ -206,51 +208,43 @@ export default function PostPage() {
   const isAuthor = user?.id === post.author.id;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-10">
-      <article className="space-y-8">
-        {/* Post header */}
-        <div className="border-b pb-6">
-          <div className="mb-6 flex items-center justify-between">
+    <div className={`min-h-screen ${theme.background}`}>
+      <div className="mx-auto max-w-4xl py-12">
+        <article className={`rounded-lg p-8 ${theme.primary}`}>
+          <div className="mb-8">
+            <h1 className={`mb-4 text-4xl font-bold ${theme.text}`}>
+              {post.title}
+            </h1>
             <div className="flex items-center gap-4">
               <Avatar fallback={post.author.username} />
               <div>
-                <p className="font-medium">{post.author.username}</p>
-                <p className="text-sm text-gray-500">
-                  {formatDistanceToNow(new Date(post.createdAt), {
-                    addSuffix: true,
-                  })}
-                </p>
+                <div className={`font-medium ${theme.text}`}>
+                  {post.author.username}
+                </div>
+                <div className={`text-sm ${theme.text}`}>
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </div>
               </div>
             </div>
+          </div>
 
+          <div className={`prose prose-lg max-w-none ${theme.text}`}>
+            {post.content}
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <Badge key={tag} variant="secondary" className={theme.secondary}>
+                #{tag}
+              </Badge>
+            ))}
             {post.mood && (
-              <Badge variant="secondary" className="text-sm">
+              <Badge variant="outline" className={theme.accent}>
                 {post.mood}
               </Badge>
             )}
           </div>
-
-          <h1 className="mb-6 text-4xl font-bold">{post.title}</h1>
-
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <Link key={tag} href={`/?tag=${tag}`}>
-                  <Badge variant="outline" className="hover:bg-secondary">
-                    #{tag}
-                  </Badge>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Post content */}
-        <div className="prose prose-lg max-w-none">
-          {post.content.split("\n").map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
-          ))}
-        </div>
+        </article>
 
         {/* Post actions */}
         {isAuthor && (
@@ -263,70 +257,70 @@ export default function PostPage() {
             </Button>
           </div>
         )}
-      </article>
 
-      {/* Comments section */}
-      <section className="space-y-6 border-t pt-10">
-        <h2 className="text-2xl font-bold">Comments</h2>
+        {/* Comments section */}
+        <section className="space-y-6 border-t pt-10">
+          <h2 className="text-2xl font-bold">Comments</h2>
 
-        {/* Add comment form */}
-        {isAuthenticated ? (
-          <div className="space-y-4">
-            <Textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-              className="min-h-[120px]"
-            />
-            <div className="flex justify-end">
-              <Button
-                onClick={handleSubmitComment}
-                disabled={!newComment.trim() || isSubmitting}
-                isLoading={isSubmitting}
-              >
-                Post Comment
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-lg border bg-gray-50 p-4 text-center">
-            <p className="text-gray-600">
-              <Link href="/login" className="text-primary hover:underline">
-                Sign in
-              </Link>{" "}
-              to join the conversation
-            </p>
-          </div>
-        )}
-
-        {/* Comments list */}
-        {isLoadingComments ? (
-          <div className="flex justify-center py-8">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </div>
-        ) : commentError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-red-600">
-            {commentError}
-          </div>
-        ) : comments.length === 0 ? (
-          <div className="rounded-lg border bg-gray-50 p-6 text-center">
-            <p className="text-gray-600">
-              No comments yet. Be the first to comment!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {comments.map((comment) => (
-              <CommentThread
-                key={comment.id}
-                comment={comment}
-                currentUser={user}
-                onReply={handleReply}
+          {/* Add comment form */}
+          {isAuthenticated ? (
+            <div className="space-y-4">
+              <Textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="min-h-[120px]"
               />
-            ))}
-          </div>
-        )}
-      </section>
+              <div className="flex justify-end">
+                <Button
+                  onClick={handleSubmitComment}
+                  disabled={!newComment.trim() || isSubmitting}
+                  isLoading={isSubmitting}
+                >
+                  Post Comment
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border bg-gray-50 p-4 text-center">
+              <p className="text-gray-600">
+                <Link href="/login" className="text-primary hover:underline">
+                  Sign in
+                </Link>{" "}
+                to join the conversation
+              </p>
+            </div>
+          )}
+
+          {/* Comments list */}
+          {isLoadingComments ? (
+            <div className="flex justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          ) : commentError ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-red-600">
+              {commentError}
+            </div>
+          ) : comments.length === 0 ? (
+            <div className="rounded-lg border bg-gray-50 p-6 text-center">
+              <p className="text-gray-600">
+                No comments yet. Be the first to comment!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {comments.map((comment) => (
+                <CommentThread
+                  key={comment.id}
+                  comment={comment}
+                  currentUser={user}
+                  onReply={handleReply}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

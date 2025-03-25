@@ -2,90 +2,27 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/features/auth/AuthContext";
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-
-const moods = [
-  "Thoughtful",
-  "Excited",
-  "Grateful",
-  "Inspired",
-  "Curious",
-  "Reflective",
-];
+import { Mood } from "@/lib/themes";
 
 export default function CreatePostPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
-
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
-  const [mood, setMood] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{
-    title?: string;
-    content?: string;
-    tags?: string;
-  }>({});
-
-  const handleAddTag = () => {
-    const tag = tagInput.trim().toLowerCase();
-
-    if (!tag) return;
-    if (tags.includes(tag)) {
-      setTagInput("");
-      return;
-    }
-
-    setTags([...tags, tag]);
-    setTagInput("");
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddTag();
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
-  };
-
-  const validateForm = () => {
-    const newErrors: {
-      title?: string;
-      content?: string;
-      tags?: string;
-    } = {};
-
-    if (!title.trim()) {
-      newErrors.title = "Title is required";
-    }
-
-    if (!content.trim()) {
-      newErrors.content = "Content is required";
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    tags: "",
+    mood: "" as Mood | "",
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
     setIsSubmitting(true);
+    setError(null);
 
     try {
       const response = await fetch("/api/posts", {
@@ -94,131 +31,144 @@ export default function CreatePostPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title,
-          content,
-          tags,
-          mood,
+          ...formData,
+          tags: formData.tags.split(",").map((tag) => tag.trim()),
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create post");
+        const data = await response.json();
+        throw new Error(data.error || "Failed to create post");
       }
 
       const data = await response.json();
       router.push(`/post/${data.post.id}`);
     } catch (err) {
-      console.error("Error creating post:", err);
-      alert("Failed to create post. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to create post");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
     <ProtectedRoute>
-      <div className="mx-auto max-w-4xl py-10">
-        <h1 className="mb-8 text-3xl font-bold">Create New Post</h1>
+      <div className="mx-auto max-w-4xl py-12">
+        <div className="rounded-lg bg-white p-8 shadow-sm">
+          <h1 className="mb-8 text-3xl font-bold">Create New Post</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-medium">
-              Title
-            </label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter a title for your post"
-              error={errors.title}
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label
+                htmlFor="title"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                Title
+              </label>
+              <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                minLength={3}
+                maxLength={100}
+                placeholder="Enter post title"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <label htmlFor="content" className="text-sm font-medium">
-              Content
-            </label>
-            <Textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write your post content here..."
-              className="min-h-[300px]"
-              error={errors.content}
-            />
-            <p className="text-xs text-gray-500">
-              Markdown formatting is supported.
-            </p>
-          </div>
+            <div>
+              <label
+                htmlFor="content"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                Content
+              </label>
+              <Textarea
+                id="content"
+                name="content"
+                value={formData.content}
+                onChange={handleChange}
+                required
+                minLength={10}
+                rows={10}
+                placeholder="Write your post content here..."
+              />
+            </div>
 
-          <div className="space-y-2">
-            <label htmlFor="tags" className="text-sm font-medium">
-              Tags
-            </label>
-            <div className="flex items-center">
+            <div>
+              <label
+                htmlFor="tags"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                Tags (comma-separated)
+              </label>
               <Input
                 id="tags"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Add tags to categorize your post"
-                className="flex-1"
-                error={errors.tags}
+                name="tags"
+                value={formData.tags}
+                onChange={handleChange}
+                placeholder="e.g., technology, programming, web"
               />
-              <Button
-                type="button"
-                onClick={handleAddTag}
-                className="ml-2"
-                disabled={!tagInput.trim()}
-              >
-                Add
-              </Button>
             </div>
-            {tags.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    className="cursor-pointer"
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    #{tag} ✕
-                  </Badge>
-                ))}
+
+            <div>
+              <label
+                htmlFor="mood"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                Mood
+              </label>
+              <select
+                id="mood"
+                name="mood"
+                value={formData.mood}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="">Select a mood</option>
+                <option value="Dark">Dark</option>
+                <option value="Romantic">Romantic</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Horror">Horror</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Drama">Drama</option>
+                <option value="Thriller">Thriller</option>
+              </select>
+            </div>
+
+            {error && (
+              <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+                {error}
               </div>
             )}
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Mood (optional)</label>
-            <div className="flex flex-wrap gap-2">
-              {moods.map((m) => (
-                <Badge
-                  key={m}
-                  variant={mood === m ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setMood(mood === m ? null : m)}
-                >
-                  {m}
-                </Badge>
-              ))}
+            <div className="flex justify-end gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" isLoading={isSubmitting}>
+                Create Post
+              </Button>
             </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSubmitting}>
-              Publish Post
-            </Button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </ProtectedRoute>
   );
