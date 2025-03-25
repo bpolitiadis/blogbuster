@@ -18,6 +18,7 @@ A full-stack blog platform where users can register, log in, post articles, and 
 - Installed dependencies:
   - mongoose (MongoDB ODM)
   - bcryptjs (for password hashing)
+  - jsonwebtoken (for JWT authentication)
 - Set up environment variables with `.env.local`
 - Configured folder structure:
   - `src/lib`: Utility functions
@@ -28,10 +29,45 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - `src/types`: TypeScript type definitions
   - `src/features`: Logical modules
 - Created MongoDB connection utility in `src/lib/mongodb.ts`
-- Defined User model in `src/models/User.ts` with:
+
+## Features Implemented
+
+### Authentication System
+
+- Secure JWT-based authentication with refresh tokens
+- HTTP-only cookies for refresh tokens
+- Password hashing with bcrypt
+- API Routes:
+  - `POST /api/auth/register`: User registration
+  - `POST /api/auth/login`: User authentication
+  - `POST /api/auth/refresh`: Token refresh
+  - `GET /api/auth/me`: User profile
+  - `POST /api/auth/logout`: User logout
+
+### Post Management
+
+- Complete CRUD operations for blog posts
+- Text search and tag filtering
+- Pagination support
+- Author-only modifications
+- API Routes:
+  - `POST /api/posts`: Create new post (protected)
+  - `GET /api/posts`: List posts with search and filtering
+  - `GET /api/posts/:id`: Get single post
+  - `PUT /api/posts/:id`: Update post (author only)
+  - `DELETE /api/posts/:id`: Delete post (author only)
+
+### Models
+
+- **User Model**:
   - Username, email, password fields
   - Password hashing with bcrypt
   - Password comparison method
+- **Post Model**:
+  - Title, content, tags, mood fields
+  - Author reference (ObjectId)
+  - Timestamps (createdAt, updatedAt)
+  - Text index for search functionality
 
 ## Getting Started
 
@@ -55,9 +91,12 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Next Steps
 
-- Create authentication API routes (register, login, logout)
-- Build authentication UI components
-- Implement post and comment functionality
+- Build authentication UI components (login/register forms)
+- Create post creation and editing interface
+- Implement post listing and detail pages
+- Add comment functionality
 - Design and build UI templates
 - Add OpenAI integration for writing assistance
-- Deployment setup
+- Add admin functionality
+- Set up deployment configuration
+- Add test coverage
