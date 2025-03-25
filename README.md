@@ -206,3 +206,53 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Add admin functionality
 - Set up deployment configuration
 - Add test coverage
+
+## Docker Setup
+
+The project includes Docker configuration for development, testing, and production environments.
+
+### Development Environment
+
+```bash
+# Start development environment
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+# Stop development environment
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+```
+
+### Testing Environment
+
+```bash
+# Start testing environment
+docker compose -f docker-compose.yml -f docker-compose.test.yml up
+
+# Stop testing environment
+docker compose -f docker-compose.yml -f docker-compose.test.yml down
+```
+
+### Production Environment
+
+```bash
+# Start production environment
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+# Stop production environment
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+```
+
+### Environment Variables
+
+For development and testing, the following environment variables are set by default:
+
+- `MONGODB_URI`: mongodb://mongodb:27017/blogbuster (dev) or mongodb://mongodb:27017/blogbuster_test (test)
+- `MONGO_ROOT_USERNAME`: admin
+- `MONGO_ROOT_PASSWORD`: password
+- `LOG_LEVEL`: debug (dev) or error (test)
+
+For production, you need to set these environment variables:
+
+- `MONGODB_URI`: Your MongoDB Atlas connection string
+- `JWT_SECRET`: Your JWT secret
+- `JWT_REFRESH_SECRET`: Your refresh token secret
+- `LOG_LEVEL`: info (recommended)

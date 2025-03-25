@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      target: runner
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - LOG_LEVEL=info
+    command: node server.js
+    restart: unless-stopped
