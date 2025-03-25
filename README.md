@@ -6,7 +6,7 @@ A full-stack blog platform where users can register, log in, post articles, and 
 
 - **Frontend/Backend**: Next.js 14 (App Router)
 - **Language**: TypeScript
-- **Styling**: TailwindCSS
+- **Styling**: TailwindCSS with Dark Mode Support
 - **Database**: MongoDB with Mongoose
 - **Authentication**: JWT + Refresh tokens (custom)
 - **Logging**: Winston logger with file and console transports
@@ -22,6 +22,8 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - jsonwebtoken (for JWT authentication)
   - winston (for logging)
   - mongodb (MongoDB driver)
+  - @heroicons/react (for UI icons)
+  - class-variance-authority (for component variants)
 - Set up environment variables with `.env.local`
 - Configured folder structure:
   - `src/lib`: Utility functions
@@ -31,6 +33,7 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - `src/hooks`: Custom React hooks
   - `src/types`: TypeScript type definitions
   - `src/features`: Logical modules
+  - `src/contexts`: React Context providers
 - Created MongoDB connection utility in `src/lib/mongodb.ts` with:
   - Connection pooling and caching
   - Comprehensive error handling
@@ -47,12 +50,50 @@ A full-stack blog platform where users can register, log in, post articles, and 
 ### UI Components
 
 - **Base Components**:
-  - `Button`: Versatile button component with variants and loading state
+  - `Button`: Versatile button component with:
+    - Multiple variants (default, destructive, outline, secondary, ghost, link)
+    - Size options (default, sm, lg, icon)
+    - Loading state with spinner
+    - Dark mode support
+    - Modern design with:
+      - Rounded corners (rounded-lg)
+      - Subtle shadow with hover effect
+      - Scale animation on click
+      - Smooth transitions
+      - Accessible focus states
   - `Input`: Form input with error handling
   - `Textarea`: Multi-line text input with error handling
   - `Badge`: Label component with multiple style variants
   - `Avatar`: User avatar with image support and fallback initials
   - `Modal`: Dialog component with transitions and customizable content
+  - `ThemeToggle`: Dark/Light mode toggle with system preference detection
+  - `MoodSelector`: Dynamic mood selection with visual feedback
+
+### Theme System
+
+- Dynamic Dark/Light mode support:
+  - System preference detection
+  - User preference persistence in localStorage
+  - Smooth transitions between themes
+  - Accessible color contrast ratios
+  - Consistent theming across all components
+- Mood-based theming system:
+  - 10 predefined moods with unique accent colors:
+    - Dark: Surface dark with white text
+    - Romantic: Pink accent (#F472B6)
+    - Sci-Fi: Purple accent (#7C3AED)
+    - Mystery: Gray accent (#6B7280)
+    - Adventure: Amber accent (#F59E0B)
+    - Fantasy: Violet accent (#8B5CF6)
+    - Horror: Red accent (#EF4444)
+    - Comedy: Green accent (#10B981)
+    - Drama: Blue accent (#3B82F6)
+    - Thriller: Pink accent (#EC4899)
+  - Consistent primary/secondary colors across moods
+  - Dynamic accent colors based on mood
+  - Dark mode compatibility with all moods
+  - Theme affects post display, buttons, and UI elements
+  - Consistent visual experience across the platform
 
 ### Authentication System
 
@@ -84,8 +125,20 @@ A full-stack blog platform where users can register, log in, post articles, and 
 - Author-only modifications
 - XP rewards for post creation (50 XP)
 - Mood-based theming system:
-  - 10 predefined moods (Dark, Romantic, Sci-Fi, Mystery, Adventure, Fantasy, Horror, Comedy, Drama, Thriller)
-  - Dynamic color schemes for each mood
+  - 10 predefined moods with unique accent colors:
+    - Dark: Surface dark with white text
+    - Romantic: Pink accent (#F472B6)
+    - Sci-Fi: Purple accent (#7C3AED)
+    - Mystery: Gray accent (#6B7280)
+    - Adventure: Amber accent (#F59E0B)
+    - Fantasy: Violet accent (#8B5CF6)
+    - Horror: Red accent (#EF4444)
+    - Comedy: Green accent (#10B981)
+    - Drama: Blue accent (#3B82F6)
+    - Thriller: Pink accent (#EC4899)
+  - Consistent primary/secondary colors across moods
+  - Dynamic accent colors based on mood
+  - Dark mode compatibility with all moods
   - Theme affects post display, buttons, and UI elements
   - Consistent visual experience across the platform
 - Debate system:

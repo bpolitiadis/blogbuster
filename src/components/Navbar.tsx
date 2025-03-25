@@ -5,32 +5,33 @@ import { Button } from "./ui/Button";
 import { Avatar } from "./ui/Avatar";
 import { useState } from "react";
 import { useAuth } from "@/features/auth/AuthContext";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
 
   return (
-    <nav className="bg-white shadow">
+    <nav className="bg-white dark:bg-surface-dark shadow">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex">
             <Link
               href="/"
-              className="flex flex-shrink-0 items-center font-bold text-xl"
+              className="flex flex-shrink-0 items-center font-bold text-xl text-text-light dark:text-text-dark"
             >
               BlogBuster
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
                 href="/"
-                className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 Home
               </Link>
               <Link
                 href="/posts"
-                className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 Posts
               </Link>
@@ -38,6 +39,7 @@ export function Navbar() {
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+            <ThemeToggle />
             {isAuthenticated ? (
               <>
                 <Button variant="default" asChild>
@@ -63,6 +65,7 @@ export function Navbar() {
           </div>
 
           <div className="-mr-2 flex items-center sm:hidden">
+            <ThemeToggle />
             <Button
               variant="ghost"
               size="icon"
@@ -106,42 +109,44 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="sm:hidden">
+        <div className="sm:hidden bg-white dark:bg-surface-dark">
           <div className="space-y-1 pb-3 pt-2">
             <Link
               href="/"
-              className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+              className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
             >
               Home
             </Link>
             <Link
               href="/posts"
-              className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+              className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
             >
               Posts
             </Link>
           </div>
-          <div className="border-t border-gray-200 pb-3 pt-4">
+          <div className="border-t border-gray-200 dark:border-gray-700 pb-3 pt-4">
             {isAuthenticated ? (
               <div className="space-y-1 px-4">
                 <div className="flex items-center gap-3">
                   <Avatar fallback={user?.username} size="sm" />
                   <div>
-                    <p className="text-base font-medium text-gray-800">
+                    <p className="text-base font-medium text-gray-800 dark:text-gray-200">
                       {user?.username}
                     </p>
-                    <p className="text-sm text-gray-500">{user?.email}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {user?.email}
+                    </p>
                   </div>
                 </div>
                 <Link
                   href="/posts/new"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                 >
                   Write Post
                 </Link>
                 <Link
                   href="/profile"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                 >
                   Profile
                 </Link>
@@ -150,13 +155,13 @@ export function Navbar() {
               <div className="space-y-1 px-4">
                 <Link
                   href="/login"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                 >
                   Log in
                 </Link>
                 <Link
                   href="/register"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                 >
                   Sign up
                 </Link>

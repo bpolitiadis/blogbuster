@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/features/auth/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { MoodProvider } from "@/contexts/MoodContext";
 import { Navbar } from "@/components/Navbar";
 
 const geistSans = Geist({
@@ -27,14 +29,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark`}
       >
-        <AuthProvider>
-          <Navbar />
-          <main className="mx-auto min-h-screen max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-            {children}
-          </main>
-        </AuthProvider>
+        <ThemeProvider>
+          <MoodProvider>
+            <AuthProvider>
+              <Navbar />
+              <main className="mx-auto min-h-screen max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                {children}
+              </main>
+            </AuthProvider>
+          </MoodProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
