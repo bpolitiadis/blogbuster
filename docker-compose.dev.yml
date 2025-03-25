@@ -1,20 +1,28 @@
-version: "3.8"
-
 services:
   app:
     build:
+      context: .
       target: deps
-    environment:
-      - NODE_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/blogbuster
-      - LOG_LEVEL=debug
-    command: npm run dev
+    ports:
+      - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
       - /app/.next
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/blogbuster?authSource=admin
+      - JWT_SECRET=someVerySecretString
+      - JWT_REFRESH_SECRET=someOtherRefreshTokenSecret%
+      - LOG_LEVEL=debug
+    command: npm run dev
+    depends_on:
+      - mongodb
+    networks:
+      - blogbuster-network
 
   mongodb:
+    image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
@@ -22,6 +30,12 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - blogbuster-network
 
 volumes:
   mongodb_data:
+
+networks:
+  blogbuster-network:
+    driver: bridge

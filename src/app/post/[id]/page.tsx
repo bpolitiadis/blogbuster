@@ -86,6 +86,12 @@ export default function PostPage() {
   // Fetch post data
   useEffect(() => {
     const fetchPost = async () => {
+      if (!id) {
+        setError("Invalid post ID");
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
         const response = await fetch(`/api/posts/${id}`);
@@ -110,6 +116,12 @@ export default function PostPage() {
   // Fetch comments
   useEffect(() => {
     const fetchComments = async () => {
+      if (!id) {
+        setCommentError("Invalid post ID");
+        setIsLoadingComments(false);
+        return;
+      }
+
       try {
         setIsLoadingComments(true);
         const response = await fetch(`/api/comments/${id}`);
@@ -128,9 +140,7 @@ export default function PostPage() {
       }
     };
 
-    if (id) {
-      fetchComments();
-    }
+    fetchComments();
   }, [id]);
 
   const fetchDebates = async () => {

@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Mood } from "@/lib/themes";
+import { useAuth } from "@/features/auth/AuthContext";
 
 export default function CreatePostPage() {
   const router = useRouter();
+  const { accessToken, refreshToken } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -24,26 +26,51 @@ export default function CreatePostPage() {
     setIsSubmitting(true);
     setError(null);
 
+    console.log("Starting post creation...");
+    console.log("Form data:", formData);
+
     try {
+      // Try to refresh the token first
+      await refreshToken();
+
+      console.log("Making POST request to /api/posts with token:", accessToken);
       const response = await fetch("/api/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           ...formData,
           tags: formData.tags.split(",").map((tag) => tag.trim()),
         }),
       });
 
+      console.log("Response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
       if (!response.ok) {
         const data = await response.json();
+        console.error("Error response data:", data);
         throw new Error(data.error || "Failed to create post");
       }
 
       const data = await response.json();
+      console.log("Success response data:", data);
+
+      if (!data.post?.id) {
+        throw new Error("Invalid post ID received from server");
+      }
+
+      // Add a small delay to ensure the post is fully created
+      await new Promise((resolve) => setTimeout(resolve, 100));
       router.push(`/post/${data.post.id}`);
     } catch (err) {
+      console.error("Error in handleSubmit:", err);
       setError(err instanceof Error ? err.message : "Failed to create post");
     } finally {
       setIsSubmitting(false);

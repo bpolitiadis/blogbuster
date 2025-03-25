@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  accessToken: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (
     username: string,
@@ -57,7 +58,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Ensure we have a valid access token
       if (!accessToken) {
-        await refreshToken();
+        try {
+          await refreshToken();
+        } catch (error) {
+          console.error("Failed to refresh token:", error);
+          return null;
+        }
+      }
+
+      // If we still don't have a token after refresh attempt, return null
+      if (!accessToken) {
+        return null;
       }
 
       const response = await fetch("/api/auth/me", {
@@ -67,6 +78,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          // Token is invalid, try to refresh
+          try {
+            await refreshToken();
+            // Retry the request with new token
+            const retryResponse = await fetch("/api/auth/me", {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            });
+            if (retryResponse.ok) {
+              const data = await retryResponse.json();
+              return data.user;
+            }
+          } catch (error) {
+            console.error("Failed to refresh token on retry:", error);
+            return null;
+          }
+        }
         throw new Error("Failed to fetch user data");
       }
 
@@ -117,6 +147,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
+      if (!data.accessToken) {
+        throw new Error("No access token received");
+      }
       setAccessToken(data.accessToken);
 
       // Fetch user data with the new token
@@ -126,6 +159,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error("Login error:", error);
+      setAccessToken(null);
+      setUser(null);
       throw error;
     } finally {
       setIsLoading(false);
@@ -144,6 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ username, email, password }),
       });
 
@@ -152,10 +188,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(error.message || "Registration failed");
       }
 
-      // After successful registration, log the user in
-      await login(email, password);
+      const data = await response.json();
+      if (!data.accessToken) {
+        throw new Error("No access token received");
+      }
+      setAccessToken(data.accessToken);
+
+      // After successful registration, fetch user data
+      const userData = await fetchUserData();
+      if (userData) {
+        setUser(userData);
+      }
     } catch (error) {
       console.error("Registration error:", error);
+      setAccessToken(null);
+      setUser(null);
       throw error;
     } finally {
       setIsLoading(false);
@@ -184,6 +231,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isLoading,
     isAuthenticated,
+    accessToken,
     login,
     register,
     logout,

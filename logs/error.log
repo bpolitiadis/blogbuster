@@ -8,3 +8,13 @@
 2025-03-25 13:12:01 [ERROR]: Registration error: Unknown error type - MongoServerError: bad auth : authentication failed
 2025-03-25 13:18:56 [ERROR]: Registration error: Unknown error type - MongoServerError: user is not allowed to do action [find] on [test.users]
 2025-03-25 13:21:45 [ERROR]: Registration error: Unknown error type - MongoServerError: user is not allowed to do action [find] on [test.users]
+2025-03-25 13:21:13 [ERROR]: MongoDB connection error: getaddrinfo ENOTFOUND mongodb
+2025-03-25 13:21:13 [ERROR]: Failed to connect to MongoDB
+2025-03-25 13:25:27 [ERROR]: MongoDB connection error: getaddrinfo ENOTFOUND mongodb
+2025-03-25 13:25:27 [ERROR]: Failed to connect to MongoDB
+2025-03-25 13:25:27 [ERROR]: Failed to connect to MongoDB
+2025-03-25 13:36:54 [ERROR]: MongoDB connection error: getaddrinfo ENOTFOUND mongodb
+2025-03-25 13:36:54 [ERROR]: Failed to connect to MongoDB
+2025-03-25 14:00:03 [ERROR]: Registration error: Unknown error type - MongoServerError: Command find requires authentication
+2025-03-25 14:01:21 [ERROR]: Registration error: Unknown error type - MongoServerError: Command find requires authentication
+2025-03-25 14:01:37 [ERROR]: Registration error: Unknown error type - MongoServerError: Command find requires authentication
