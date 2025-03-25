@@ -32,6 +32,16 @@ A full-stack blog platform where users can register, log in, post articles, and 
 
 ## Features Implemented
 
+### UI Components
+
+- **Base Components**:
+  - `Button`: Versatile button component with variants and loading state
+  - `Input`: Form input with error handling
+  - `Textarea`: Multi-line text input with error handling
+  - `Badge`: Label component with multiple style variants
+  - `Avatar`: User avatar with image support and fallback initials
+  - `Modal`: Dialog component with transitions and customizable content
+
 ### Authentication System
 
 - Secure JWT-based authentication with refresh tokens
