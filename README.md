@@ -74,6 +74,15 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - `GET /api/posts/:id`: Get single post
   - `PUT /api/posts/:id`: Update post (author only)
   - `DELETE /api/posts/:id`: Delete post (author only)
+- Frontend Post Pages:
+  - `/`: Home feed with list of posts and filtering options
+  - `/post/:id`: Single post view with comments and author details
+  - `/create`: Post creation page with markdown support
+  - `/edit/:id`: Post editing page with authorized access
+  - Features:
+    - Tag filtering on homepage
+    - Mood-based theming
+    - Comment threads with nested replies
 
 ### Comment System
 
@@ -124,10 +133,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Next Steps
 
-- Create post creation and editing interface
-- Implement post listing and detail pages
-- Add comment UI components and interactions
-- Design and build UI templates
+- ~~Build authentication UI components (login/register forms)~~
+- ~~Create post creation and editing interface~~
+- ~~Implement post listing and detail pages~~
+- ~~Add comment UI components and interactions~~
 - Add OpenAI integration for writing assistance
 - Add admin functionality
 - Set up deployment configuration
