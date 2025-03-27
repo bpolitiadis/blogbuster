@@ -3,116 +3,157 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/features/auth/AuthContext";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/auth/PasswordInput";
+import { AuthCard } from "@/components/auth/AuthCard";
 
 export default function RegisterPage() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { register, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.username) {
+      newErrors.username = "Username is required";
+    } else if (formData.username.length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
+    }
+
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    if (!validateForm()) {
       return;
     }
 
+    setIsLoading(true);
     try {
-      await register(username, email, password);
-      router.push("/");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Registration failed");
+      }
+
+      router.push("/login?registered=true");
+    } catch (error) {
+      setErrors({
+        submit: error instanceof Error ? error.message : "Registration failed",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="mx-auto max-w-md space-y-6 py-10">
-      <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Create an account</h1>
-        <p className="text-gray-500">Enter your details to get started</p>
-      </div>
+    <AuthCard
+      title="Create an account"
+      subtitle="Join our community of writers"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Input
+          label="Username"
+          type="text"
+          value={formData.username}
+          onChange={(e) =>
+            setFormData({ ...formData, username: e.target.value })
+          }
+          error={errors.username}
+          success={Boolean(formData.username && !errors.username)}
+          required
+        />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-            {error}
+        <Input
+          label="Email"
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          error={errors.email}
+          success={Boolean(formData.email && !errors.email)}
+          required
+        />
+
+        <PasswordInput
+          label="Password"
+          value={formData.password}
+          onChange={(value) => setFormData({ ...formData, password: value })}
+          error={errors.password}
+          success={Boolean(formData.password && !errors.password)}
+          required
+        />
+
+        <PasswordInput
+          label="Confirm Password"
+          value={formData.confirmPassword}
+          onChange={(value) =>
+            setFormData({ ...formData, confirmPassword: value })
+          }
+          error={errors.confirmPassword}
+          success={Boolean(formData.confirmPassword && !errors.confirmPassword)}
+          required
+        />
+
+        {errors.submit && (
+          <div className="text-sm text-red-500 dark:text-red-400">
+            {errors.submit}
           </div>
         )}
 
-        <div className="space-y-2">
-          <label htmlFor="username" className="text-sm font-medium">
-            Username
-          </label>
-          <Input
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="johndoe"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">
-            Password
-          </label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="confirmPassword" className="text-sm font-medium">
-            Confirm Password
-          </label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
-        </div>
-
         <Button type="submit" className="w-full" isLoading={isLoading}>
-          Sign up
+          Create account
         </Button>
 
-        <div className="text-center text-sm">
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link
+            href="/login"
+            className="text-primary hover:text-primary-dark dark:text-primary-dark dark:hover:text-primary"
+          >
             Sign in
           </Link>
-        </div>
+        </p>
       </form>
-    </div>
+    </AuthCard>
   );
 }
