@@ -43,7 +43,7 @@ export function Navbar() {
             {isAuthenticated ? (
               <>
                 <Button variant="default" asChild>
-                  <Link href="/posts/new">Write Post</Link>
+                  <Link href="/create">Write Post</Link>
                 </Button>
                 <Link href="/profile">
                   <Avatar
@@ -139,7 +139,7 @@ export function Navbar() {
                   </div>
                 </div>
                 <Link
-                  href="/posts/new"
+                  href="/create"
                   className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                 >
                   Write Post
