@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/mongodb";
+import connectToDatabase from "@/lib/mongodb";
 import { Debate } from "@/models/Debate";
-import { Post } from "@/models/Post";
-import { User } from "@/models/User";
+import Post from "@/models/Post";
+import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
@@ -114,11 +114,42 @@ export async function GET(req: Request) {
       .populate("winner", "username")
       .sort({ createdAt: -1 });
 
-    return NextResponse.json(debates);
+    // Transform the debates to match the frontend expectations
+    const transformedDebates = debates.map((debate) => ({
+      id: debate._id,
+      postId: debate.postId,
+      challengerId: debate.user2,
+      challenger: debate.user2,
+      authorId: debate.user1,
+      author: debate.user1,
+      challengerReply: debate.replies.find((r) => r.userId.equals(debate.user2))
+        ?.content,
+      authorReply: debate.replies.find((r) => r.userId.equals(debate.user1))
+        ?.content,
+      votes: debate.votes.map((vote) => ({
+        userId: vote.userId,
+        votedFor: vote.votedFor,
+      })),
+      status: debate.status,
+      createdAt: debate.createdAt,
+      expiresAt: debate.expiresAt,
+    }));
+
+    return NextResponse.json(transformedDebates);
   } catch (error) {
     console.error("Error fetching debates:", error);
+    if (error instanceof Error) {
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
+    }
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

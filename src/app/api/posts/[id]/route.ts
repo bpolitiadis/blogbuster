@@ -7,21 +7,25 @@ import { Error } from "mongoose";
 // Get single post
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToDatabase();
+    const { id } = await context.params;
 
-    const post = await Post.findById(params.id).populate(
-      "author",
-      "username email"
-    );
+    const post = await Post.findById(id).populate("author", "username email");
 
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ post });
+    // Transform post to include id field
+    const transformedPost = {
+      ...post.toObject(),
+      id: post._id.toString(),
+    };
+
+    return NextResponse.json({ post: transformedPost });
   } catch (error) {
     console.error(
       "Get post error:",
@@ -40,54 +44,32 @@ export async function GET(
 // Update post (author only)
 async function updatePost(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectToDatabase();
+    const { id } = await context.params;
+    const user = await getAuthUser(req);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // Get authenticated user
-    const { userId } = getAuthUser(req);
-
-    // Find post
-    const post = await Post.findById(params.id);
-
+    const post = await Post.findById(id);
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Check if user is the author
-    if (post.author.toString() !== userId) {
-      return NextResponse.json(
-        { error: "Not authorized to update this post" },
-        { status: 403 }
-      );
+    if (post.author.toString() !== user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    // Parse request body
     const body = await req.json();
-    const { title, content, tags, mood } = body;
+    const updatedPost = await Post.findByIdAndUpdate(
+      id,
+      { $set: body },
+      { new: true }
+    ).populate("author", "username email");
 
-    // Validate required fields
-    if (!title || !content) {
-      return NextResponse.json(
-        { error: "Title and content are required" },
-        { status: 400 }
-      );
-    }
-
-    // Update post
-    post.title = title;
-    post.content = content;
-    post.tags = tags || [];
-    post.mood = mood;
-
-    await post.save();
-    await post.populate("author", "username email");
-
-    return NextResponse.json({
-      message: "Post updated successfully",
-      post,
-    });
+    return NextResponse.json({ post: updatedPost });
   } catch (error) {
     console.error(
       "Update post error:",
@@ -103,38 +85,29 @@ async function updatePost(
   }
 }
 
-// Delete post (author or admin)
+// Delete post (author only)
 async function deletePost(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectToDatabase();
+    const { id } = await context.params;
+    const user = await getAuthUser(req);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // Get authenticated user
-    const { userId } = getAuthUser(req);
-
-    // Find post
-    const post = await Post.findById(params.id);
-
+    const post = await Post.findById(id);
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Check if user is the author
-    // TODO: Add admin check when admin functionality is implemented
-    if (post.author.toString() !== userId) {
-      return NextResponse.json(
-        { error: "Not authorized to delete this post" },
-        { status: 403 }
-      );
+    if (post.author.toString() !== user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    await post.deleteOne();
-
-    return NextResponse.json({
-      message: "Post deleted successfully",
-    });
+    await Post.findByIdAndDelete(id);
+    return NextResponse.json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error(
       "Delete post error:",
@@ -150,18 +123,16 @@ async function deletePost(
   }
 }
 
-// Protected PUT endpoint
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  return authMiddleware(req, (req) => updatePost(req, { params }));
+  return updatePost(req, context);
 }
 
-// Protected DELETE endpoint
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  return authMiddleware(req, (req) => deletePost(req, { params }));
+  return deletePost(req, context);
 }

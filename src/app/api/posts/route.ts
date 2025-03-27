@@ -87,11 +87,17 @@ export async function GET(req: NextRequest) {
       .skip(skip)
       .limit(limit);
 
+    // Transform posts to include id field
+    const transformedPosts = posts.map((post) => ({
+      ...post.toObject(),
+      id: post._id.toString(),
+    }));
+
     // Get total count for pagination
     const total = await Post.countDocuments(query);
 
     return NextResponse.json({
-      posts,
+      posts: transformedPosts,
       pagination: {
         total,
         page,

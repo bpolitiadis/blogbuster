@@ -6,13 +6,14 @@ import { Error } from "mongoose";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<{ postId: string }> }
 ) {
   try {
     await connectToDatabase();
+    const { postId } = await context.params;
 
     // Check if post exists
-    const post = await Post.findById(params.postId);
+    const post = await Post.findById(postId);
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
@@ -25,7 +26,7 @@ export async function GET(
     // First, get all top-level comments (no parent)
     const skip = (page - 1) * limit;
     const topLevelComments = await Comment.find({
-      post: params.postId,
+      post: postId,
       parentComment: null,
     })
       .populate("author", "username email")
@@ -35,7 +36,7 @@ export async function GET(
 
     // Get total count for pagination
     const total = await Comment.countDocuments({
-      post: params.postId,
+      post: postId,
       parentComment: null,
     });
 
@@ -43,7 +44,7 @@ export async function GET(
     const commentsWithReplies = await Promise.all(
       topLevelComments.map(async (comment) => {
         const replies = await Comment.find({
-          post: params.postId,
+          post: postId,
           parentComment: comment._id,
         })
           .populate("author", "username email")
