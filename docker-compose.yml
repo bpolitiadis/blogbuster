@@ -9,15 +9,18 @@ services:
       - .:/app
       - /app/node_modules
       - /app/.next
+      - ./.env.local:/app/.env.local
     environment:
       - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/blogbuster}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:password@mongodb:27017/blogbuster?authSource=admin}
+      - JWT_SECRET=${JWT_SECRET:-someVerySecretString}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-someOtherRefreshTokenSecret%}
       - LOG_LEVEL=${LOG_LEVEL:-info}
     depends_on:
       - mongodb
     command: ${COMMAND:-npm run dev}
+    networks:
+      - blogbuster-network
 
   mongodb:
     image: mongo:latest

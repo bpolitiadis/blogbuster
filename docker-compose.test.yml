@@ -1,23 +1,17 @@
 services:
   app:
-    build:
-      target: deps
     environment:
       - NODE_ENV=test
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/blogbuster_test?authSource=admin
       - LOG_LEVEL=error
     command: npm run test
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
-    networks:
-      - blogbuster-network
+    ports:
+      - "3001:3000"
 
   mongodb:
     image: mongo:latest
     ports:
-      - "27018:27017" # Different port to avoid conflicts with dev
+      - "27018:27017"
     volumes:
       - mongodb_test_data:/data/db
     environment:

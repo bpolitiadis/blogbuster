@@ -30,6 +30,8 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_LOG_LEVEL=error
+    command: ["mongod", "--quiet"]
     networks:
       - blogbuster-network
 

@@ -68,6 +68,11 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - `Modal`: Dialog component with transitions and customizable content
   - `ThemeToggle`: Dark/Light mode toggle with system preference detection
   - `MoodSelector`: Dynamic mood selection with visual feedback
+  - `Hero`: Full-width hero section with dynamic gradient background
+  - `FilterSidebar`: Collapsible sidebar for mood and tag filters
+  - `PostCard`: Modern card component with hover effects and masonry layout support
+  - `PostForm`: Rich markdown editor with live preview and AI writing assistant
+  - `ProfileDashboard`: User profile with XP tracking, settings, and activity feed
 
 ### Theme System
 
@@ -94,6 +99,40 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - Dark mode compatibility with all moods
   - Theme affects post display, buttons, and UI elements
   - Consistent visual experience across the platform
+  - Dynamic gradient backgrounds in hero sections
+  - Glassmorphism effects in modals and overlays
+
+### Layout Features
+
+- **Homepage**:
+  - Dynamic hero section with mood-based gradients
+  - Masonry layout for post cards
+  - Hover effects with scale and shadow transitions
+  - Sticky filter sidebar on desktop
+  - Collapsible filters on mobile
+  - Responsive design for all screen sizes
+- **Post Page**:
+  - Dynamic header with mood-based background
+  - Clean content section with max-width prose
+  - Author bio section with XP and badges
+  - Collapsible comments and debates sections
+  - Micro-interactions for better UX
+  - Smooth transitions and animations
+- **Post Creation/Editing**:
+  - Rich markdown editor with live preview
+  - Side-by-side editor and preview (responsive)
+  - Tag management with keyboard support
+  - Mood selection with visual feedback
+  - AI writing assistant with slide-in panel
+  - Modern card layout with shadow effects
+- **Profile Dashboard**:
+  - User info card with avatar and bio
+  - XP progress bar with animations
+  - Badge showcase
+  - Collapsible settings panel
+  - Theme and accessibility options
+  - Animated activity timeline
+  - Responsive layout for all screen sizes
 
 ### Authentication System
 
