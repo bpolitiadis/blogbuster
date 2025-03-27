@@ -26,14 +26,9 @@ export default function CreatePostPage() {
     setIsSubmitting(true);
     setError(null);
 
-    console.log("Starting post creation...");
-    console.log("Form data:", formData);
-
     try {
-      // Try to refresh the token first
       await refreshToken();
 
-      console.log("Making POST request to /api/posts with token:", accessToken);
       const response = await fetch("/api/posts", {
         method: "POST",
         headers: {
@@ -47,28 +42,24 @@ export default function CreatePostPage() {
         }),
       });
 
-      console.log("Response status:", response.status);
-      console.log(
-        "Response headers:",
-        Object.fromEntries(response.headers.entries())
-      );
-
       if (!response.ok) {
         const data = await response.json();
-        console.error("Error response data:", data);
         throw new Error(data.error || "Failed to create post");
       }
 
       const data = await response.json();
-      console.log("Success response data:", data);
 
-      if (!data.post?.id) {
+      if (!data.post) {
+        throw new Error("No post data received from server");
+      }
+
+      const postId = data.post._id;
+
+      if (!postId || typeof postId !== "string") {
         throw new Error("Invalid post ID received from server");
       }
 
-      // Add a small delay to ensure the post is fully created
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      router.push(`/post/${data.post.id}`);
+      router.push(`/post/${postId}`);
     } catch (err) {
       console.error("Error in handleSubmit:", err);
       setError(err instanceof Error ? err.message : "Failed to create post");
@@ -88,15 +79,17 @@ export default function CreatePostPage() {
 
   return (
     <ProtectedRoute>
-      <div className="mx-auto max-w-4xl py-12">
-        <div className="rounded-lg bg-white p-8 shadow-sm">
-          <h1 className="mb-8 text-3xl font-bold">Create New Post</h1>
+      <div className="mx-auto max-w-4xl px-4 py-12">
+        <div className="rounded-lg bg-surface-light dark:bg-surface-dark p-8 shadow-sm">
+          <h1 className="mb-8 text-3xl font-bold text-text-light dark:text-text-dark">
+            Create New Post
+          </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="title"
-                className="mb-2 block text-sm font-medium text-gray-700"
+                className="mb-2 block text-sm font-medium text-text-light dark:text-text-dark"
               >
                 Title
               </label>
@@ -109,13 +102,14 @@ export default function CreatePostPage() {
                 minLength={3}
                 maxLength={100}
                 placeholder="Enter post title"
+                className="bg-white dark:bg-gray-800 text-text-light dark:text-text-dark border-gray-200 dark:border-gray-700"
               />
             </div>
 
             <div>
               <label
                 htmlFor="content"
-                className="mb-2 block text-sm font-medium text-gray-700"
+                className="mb-2 block text-sm font-medium text-text-light dark:text-text-dark"
               >
                 Content
               </label>
@@ -128,13 +122,14 @@ export default function CreatePostPage() {
                 minLength={10}
                 rows={10}
                 placeholder="Write your post content here..."
+                className="bg-white dark:bg-gray-800 text-text-light dark:text-text-dark border-gray-200 dark:border-gray-700"
               />
             </div>
 
             <div>
               <label
                 htmlFor="tags"
-                className="mb-2 block text-sm font-medium text-gray-700"
+                className="mb-2 block text-sm font-medium text-text-light dark:text-text-dark"
               >
                 Tags (comma-separated)
               </label>
@@ -144,13 +139,14 @@ export default function CreatePostPage() {
                 value={formData.tags}
                 onChange={handleChange}
                 placeholder="e.g., technology, programming, web"
+                className="bg-white dark:bg-gray-800 text-text-light dark:text-text-dark border-gray-200 dark:border-gray-700"
               />
             </div>
 
             <div>
               <label
                 htmlFor="mood"
-                className="mb-2 block text-sm font-medium text-gray-700"
+                className="mb-2 block text-sm font-medium text-text-light dark:text-text-dark"
               >
                 Mood
               </label>
@@ -159,7 +155,7 @@ export default function CreatePostPage() {
                 name="mood"
                 value={formData.mood}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-text-light dark:text-text-dark focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">Select a mood</option>
                 <option value="Dark">Dark</option>
@@ -176,7 +172,7 @@ export default function CreatePostPage() {
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-400">
                 {error}
               </div>
             )}

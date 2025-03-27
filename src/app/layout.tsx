@@ -27,17 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark`}
+        suppressHydrationWarning
       >
         <ThemeProvider>
           <MoodProvider>
             <AuthProvider>
               <Navbar />
-              <main className="mx-auto min-h-screen max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                {children}
-              </main>
+              <main>{children}</main>
             </AuthProvider>
           </MoodProvider>
         </ThemeProvider>

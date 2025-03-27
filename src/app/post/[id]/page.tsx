@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/Button";
 import { CommentThread } from "@/components/CommentThread";
 import { Textarea } from "@/components/ui/Textarea";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
 import { useTheme } from "@/hooks/useTheme";
 import { Mood } from "@/lib/themes";
 import { Debate } from "@/components/Debate";
+import { Disclosure } from "@headlessui/react";
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 
 interface Comment {
   id: string;
@@ -35,35 +36,35 @@ interface Post {
     id: string;
     username: string;
     email: string;
+    bio?: string;
+    xp: number;
+    level: number;
+    badges: string[];
   };
   createdAt: string;
 }
 
 interface Debate {
   id: string;
-  user1: {
+  postId: string;
+  challengerId: string;
+  challenger: {
     id: string;
     username: string;
   };
-  user2: {
+  authorId: string;
+  author: {
     id: string;
     username: string;
   };
-  replies: {
-    userId: string;
-    content: string;
-    createdAt: string;
-  }[];
+  challengerReply?: string;
+  authorReply?: string;
   votes: {
     userId: string;
     votedFor: string;
-    createdAt: string;
   }[];
-  winner?: {
-    id: string;
-    username: string;
-  };
   status: "active" | "completed";
+  createdAt: string;
   expiresAt: string;
 }
 
@@ -125,11 +126,9 @@ export default function PostPage() {
       try {
         setIsLoadingComments(true);
         const response = await fetch(`/api/comments/${id}`);
-
         if (!response.ok) {
           throw new Error("Failed to fetch comments");
         }
-
         const data = await response.json();
         setComments(data.comments);
       } catch (err) {
@@ -143,22 +142,33 @@ export default function PostPage() {
     fetchComments();
   }, [id]);
 
-  const fetchDebates = async () => {
-    try {
-      setIsLoadingDebates(true);
-      const response = await fetch(`/api/debates?postId=${id}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch debates");
+  // Fetch debates
+  useEffect(() => {
+    const fetchDebates = async () => {
+      if (!id) {
+        setError("Invalid post ID");
+        setIsLoadingDebates(false);
+        return;
       }
-      const data = await response.json();
-      setDebates(data);
-    } catch (error) {
-      console.error("Error fetching debates:", error);
-      setError("Failed to load debates");
-    } finally {
-      setIsLoadingDebates(false);
-    }
-  };
+
+      try {
+        setIsLoadingDebates(true);
+        const response = await fetch(`/api/debates?postId=${id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch debates");
+        }
+        const data = await response.json();
+        setDebates(data);
+      } catch (err) {
+        console.error("Error fetching debates:", err);
+        setError("Failed to load debates. Please try again later.");
+      } finally {
+        setIsLoadingDebates(false);
+      }
+    };
+
+    fetchDebates();
+  }, [id]);
 
   const handleCreateDebate = async (challengedUserId: string) => {
     try {
@@ -167,6 +177,7 @@ export default function PostPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           postId: id,
           challengedUserId,
@@ -284,10 +295,7 @@ export default function PostPage() {
       }
 
       const data = await response.json();
-
-      // Add the new comment to the comments array
       setComments((prevComments) => [...prevComments, data.comment]);
-
       setNewComment("");
     } catch (err) {
       console.error("Error adding comment:", err);
@@ -316,8 +324,6 @@ export default function PostPage() {
       }
 
       const data = await response.json();
-
-      // Refresh comments to include the new reply
       const commentsResponse = await fetch(`/api/comments/${id}`);
       const commentsData = await commentsResponse.json();
       setComments(commentsData.comments);
@@ -348,35 +354,83 @@ export default function PostPage() {
   const isAuthor = user?.id === post.author.id;
 
   return (
-    <div className={`min-h-screen ${theme.background}`}>
-      <div className="mx-auto max-w-4xl py-12">
-        <article className={`rounded-lg p-8 ${theme.primary}`}>
-          <div className="mb-8">
-            <h1 className={`mb-4 text-4xl font-bold ${theme.text}`}>
+    <div className="min-h-screen">
+      {/* Dynamic header */}
+      <div
+        className={`relative overflow-hidden bg-gradient-to-r ${theme.background} py-16 transition-all duration-500`}
+      >
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
               {post.title}
             </h1>
-            <div className="flex items-center gap-4">
-              <Avatar fallback={post.author.username} />
-              <div>
-                <div className={`font-medium ${theme.text}`}>
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <Avatar fallback={post.author.username} size="lg" />
+              <div className="text-left">
+                <div className="font-medium text-white">
                   {post.author.username}
                 </div>
-                <div className={`text-sm ${theme.text}`}>
+                <div className="text-sm text-white/80">
                   {new Date(post.createdAt).toLocaleDateString()}
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
+      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+        {/* Author bio section */}
+        <div className="mb-12 rounded-lg border bg-surface-light dark:bg-surface-dark p-6">
+          <div className="flex items-start gap-4">
+            <Avatar fallback={post.author.username} size="lg" />
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold text-text-light dark:text-text-dark">
+                About {post.author.username}
+              </h2>
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
+                {post.author.bio || "No bio available"}
+              </p>
+              <div className="mt-4 flex items-center gap-2">
+                <Badge
+                  variant="secondary"
+                  className="bg-accent-romantic/10 text-accent-romantic"
+                >
+                  Level {post.author.level}
+                </Badge>
+                <Badge
+                  variant="secondary"
+                  className="bg-accent-sciFi/10 text-accent-sciFi"
+                >
+                  {post.author.xp} XP
+                </Badge>
+                {(post.author?.badges || []).map((badge) => (
+                  <Badge key={badge} variant="outline">
+                    {badge}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Post content */}
+        <article className={`rounded-lg p-8 ${theme.primary} mb-12`}>
           <div className={`prose prose-lg max-w-none ${theme.text}`}>
             {post.content}
           </div>
 
           <div className="mt-8 flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className={theme.secondary}>
-                #{tag}
-              </Badge>
+            {(post?.tags || []).map((tag) => (
+              <Link key={tag} href={`/posts?tag=${tag}`}>
+                <Badge
+                  variant="outline"
+                  className="hover:bg-secondary/10 dark:hover:bg-secondary-dark/10 transition-colors duration-200"
+                >
+                  #{tag}
+                </Badge>
+              </Link>
             ))}
             {post.mood && (
               <Badge variant="outline" className={theme.accent}>
@@ -388,7 +442,7 @@ export default function PostPage() {
 
         {/* Post actions */}
         {isAuthor && (
-          <div className="flex gap-4 border-t pt-6">
+          <div className="flex gap-4 border-t pt-6 mb-12">
             <Button variant="outline" asChild>
               <Link href={`/edit/${post.id}`}>Edit Post</Link>
             </Button>
@@ -399,105 +453,170 @@ export default function PostPage() {
         )}
 
         {/* Comments section */}
-        <section className="space-y-6 border-t pt-10">
-          <h2 className="text-2xl font-bold">Comments</h2>
+        <Disclosure defaultOpen>
+          {({ open }) => (
+            <div className="space-y-6 border-t pt-10">
+              <Disclosure.Button className="flex w-full items-center justify-between rounded-lg bg-surface-light dark:bg-surface-dark px-4 py-2 text-left text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:ring focus-visible:ring-primary">
+                <h2 className="text-2xl font-bold">Comments</h2>
+                {open ? (
+                  <ChevronUpIcon className="h-5 w-5" />
+                ) : (
+                  <ChevronDownIcon className="h-5 w-5" />
+                )}
+              </Disclosure.Button>
 
-          {/* Add comment form */}
-          {isAuthenticated ? (
-            <div className="space-y-4">
-              <Textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Add a comment..."
-                className="min-h-[120px]"
-              />
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleSubmitComment}
-                  disabled={!newComment.trim() || isSubmitting}
-                  isLoading={isSubmitting}
-                >
-                  Post Comment
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-lg border bg-gray-50 p-4 text-center">
-              <p className="text-gray-600">
-                <Link href="/login" className="text-primary hover:underline">
-                  Sign in
-                </Link>{" "}
-                to join the conversation
-              </p>
+              <Disclosure.Panel>
+                {/* Add comment form */}
+                {isAuthenticated ? (
+                  <div className="space-y-4 mb-8">
+                    <Textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Add a comment..."
+                      className="min-h-[120px]"
+                    />
+                    <div className="flex justify-end">
+                      <Button
+                        onClick={handleSubmitComment}
+                        disabled={!newComment.trim() || isSubmitting}
+                        isLoading={isSubmitting}
+                      >
+                        Post Comment
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border bg-gray-50 p-4 text-center">
+                    <p className="text-gray-600">
+                      <Link
+                        href="/login"
+                        className="text-primary hover:underline"
+                      >
+                        Sign in
+                      </Link>{" "}
+                      to join the conversation
+                    </p>
+                  </div>
+                )}
+
+                {/* Comments list */}
+                {isLoadingComments ? (
+                  <div className="flex justify-center py-8">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  </div>
+                ) : commentError ? (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-red-600">
+                    {commentError}
+                  </div>
+                ) : comments.length === 0 ? (
+                  <div className="rounded-lg border bg-gray-50 p-6 text-center">
+                    <p className="text-gray-600">
+                      No comments yet. Be the first to comment!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {comments.map((comment) => (
+                      <CommentThread
+                        key={comment.id}
+                        comment={comment}
+                        currentUser={user}
+                        onReply={handleReply}
+                      />
+                    ))}
+                  </div>
+                )}
+              </Disclosure.Panel>
             </div>
           )}
-
-          {/* Comments list */}
-          {isLoadingComments ? (
-            <div className="flex justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </div>
-          ) : commentError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-red-600">
-              {commentError}
-            </div>
-          ) : comments.length === 0 ? (
-            <div className="rounded-lg border bg-gray-50 p-6 text-center">
-              <p className="text-gray-600">
-                No comments yet. Be the first to comment!
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {comments.map((comment) => (
-                <CommentThread
-                  key={comment.id}
-                  comment={comment}
-                  currentUser={user}
-                  onReply={handleReply}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+        </Disclosure>
 
         {/* Debates Section */}
-        <div className="mt-8">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Debates</h2>
-            {user && user.id !== post.author.id && (
-              <Button
-                onClick={() => handleCreateDebate(post.author.id)}
-                disabled={isLoading}
-              >
-                Challenge Author
-              </Button>
-            )}
-          </div>
+        <Disclosure defaultOpen>
+          {({ open }) => (
+            <div className="mt-12 border-t pt-10">
+              <Disclosure.Button className="flex w-full items-center justify-between rounded-lg bg-surface-light dark:bg-surface-dark px-4 py-2 text-left text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:ring focus-visible:ring-primary">
+                <div className="flex items-center justify-between w-full">
+                  <h2 className="text-2xl font-bold">Debates</h2>
+                  {open ? (
+                    <ChevronUpIcon className="h-5 w-5" />
+                  ) : (
+                    <ChevronDownIcon className="h-5 w-5" />
+                  )}
+                </div>
+              </Disclosure.Button>
+              {user && user.id !== post.author.id && (
+                <div className="mt-2 flex justify-end">
+                  <Button
+                    onClick={() => handleCreateDebate(post.author.id)}
+                    disabled={isLoading}
+                  >
+                    Challenge Author
+                  </Button>
+                </div>
+              )}
 
-          {isLoadingDebates ? (
-            <div className="flex justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            </div>
-          ) : error ? (
-            <div className="rounded-lg bg-red-50 p-4">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          ) : debates.length === 0 ? (
-            <p className="text-gray-500">No debates yet</p>
-          ) : (
-            <div className="space-y-6">
-              {debates.map((debate) => (
-                <Debate
-                  key={debate.id}
-                  debate={debate}
-                  onReply={(content) => handleDebateReply(debate.id, content)}
-                  onVote={(votedFor) => handleDebateVote(debate.id, votedFor)}
-                />
-              ))}
+              <Disclosure.Panel>
+                {isLoadingDebates ? (
+                  <div className="flex justify-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                  </div>
+                ) : error ? (
+                  <div className="rounded-lg bg-red-50 p-4">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                ) : debates.length === 0 ? (
+                  <p className="text-gray-500">No debates yet</p>
+                ) : (
+                  <div className="space-y-6">
+                    {debates.map((debate) => (
+                      <Debate
+                        key={debate.id}
+                        debate={{
+                          id: debate.id,
+                          user1: debate.author,
+                          user2: debate.challenger,
+                          replies: [
+                            ...(debate.authorReply
+                              ? [
+                                  {
+                                    userId: debate.authorId,
+                                    content: debate.authorReply,
+                                    createdAt: debate.createdAt,
+                                  },
+                                ]
+                              : []),
+                            ...(debate.challengerReply
+                              ? [
+                                  {
+                                    userId: debate.challengerId,
+                                    content: debate.challengerReply,
+                                    createdAt: debate.createdAt,
+                                  },
+                                ]
+                              : []),
+                          ],
+                          votes: debate.votes.map((vote) => ({
+                            ...vote,
+                            createdAt: debate.createdAt,
+                          })),
+                          status: debate.status,
+                          expiresAt: debate.expiresAt,
+                        }}
+                        onReply={(content) =>
+                          handleDebateReply(debate.id, content)
+                        }
+                        onVote={(votedFor) =>
+                          handleDebateVote(debate.id, votedFor)
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+              </Disclosure.Panel>
             </div>
           )}
-        </div>
+        </Disclosure>
       </div>
     </div>
   );
