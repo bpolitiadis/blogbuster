@@ -266,18 +266,30 @@ A full-stack blog platform where users can register, log in, post articles, and 
   - Status tracking (active/completed)
   - Indexes for efficient querying
 
+## Environment Setup
+
+1. Copy the example environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+2. Update the following environment variables in `.env.local`:
+
+- `JWT_SECRET`: A secure random string for JWT token signing
+- `JWT_REFRESH_SECRET`: A different secure random string for refresh tokens
+- `MONGODB_URI`: Your MongoDB connection string
+- `MONGO_ROOT_USERNAME`: MongoDB root username
+- `MONGO_ROOT_PASSWORD`: MongoDB root password
+
+For development, you can use the default values in `docker-compose.dev.yml`.
+For production, make sure to use strong, unique values for all secrets.
+
+**Important**: Never commit `.env.local` or any other `.env` files to version control.
+
 ## Getting Started
 
 First, create a `.env.local` file in the root directory with the following variables:
-
-```
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-JWT_REFRESH_SECRET=your_refresh_token_secret
-LOG_LEVEL=info  # Optional: Set logging level (error, warn, info, debug)
-```
-
-Then, run the development server:
 
 ```bash
 npm run dev

@@ -11,9 +11,9 @@ services:
       - /app/.next
     environment:
       - NODE_ENV=development
-      - MONGODB_URI=mongodb://admin:password@mongodb:27017/blogbuster?authSource=admin
-      - JWT_SECRET=someVerySecretString
-      - JWT_REFRESH_SECRET=someOtherRefreshTokenSecret%
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - LOG_LEVEL=debug
     command: npm run dev
     depends_on:
@@ -26,17 +26,15 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db
+      - mongodb_dev_data:/data/db
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-      - MONGO_LOG_LEVEL=error
-    command: ["mongod", "--quiet"]
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
     networks:
       - blogbuster-network
 
 volumes:
-  mongodb_data:
+  mongodb_dev_data:
 
 networks:
   blogbuster-network:

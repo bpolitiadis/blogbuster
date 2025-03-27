@@ -6,8 +6,7 @@ import { Debate } from "../src/models/Debate";
 import { Mood } from "../src/lib/themes";
 
 const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb://admin:password@mongodb:27017/blogbuster?authSource=admin";
+  process.env.MONGODB_URI || "mongodb://localhost:27017/blogbuster";
 
 async function connectToDatabase() {
   try {
@@ -37,7 +36,7 @@ async function createTestUsers() {
     {
       username: "john_doe",
       email: "john@example.com",
-      password: "password123",
+      password: process.env.SEED_USER_PASSWORD || "changeme123",
       xp: 100,
       level: 2,
       badges: ["Rising Star"],
@@ -45,15 +44,15 @@ async function createTestUsers() {
     {
       username: "jane_smith",
       email: "jane@example.com",
-      password: "password123",
+      password: process.env.SEED_USER_PASSWORD || "changeme123",
       xp: 250,
       level: 3,
       badges: ["Rising Star"],
     },
     {
-      username: "bob_wilson",
-      email: "bob@example.com",
-      password: "password123",
+      username: "tech_guru",
+      email: "guru@example.com",
+      password: process.env.SEED_USER_PASSWORD || "changeme123",
       xp: 500,
       level: 6,
       badges: ["Rising Star", "Veteran"],
